@@ -27,16 +27,16 @@ public class TestSetGame extends TestCase {
     }
 
 
-    // findAllSets
+    // getAllSets
 
     public void testFindAllSets_nullInput_givesEmptyResult() {
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(null, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(null, false);
         assertEquals(0, result.size());
     }
 
     public void testFindAllSets_emptyInput_givesEmptyResult() {
         ArrayList<SetGame.Card> cards = new ArrayList<SetGame.Card>();
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(0, result.size());
     }
 
@@ -46,7 +46,7 @@ public class TestSetGame extends TestCase {
         cards.add(a);
         SetGame.Card b = game.new Card(2, 0, 2, 0);
         cards.add(b);
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(0, result.size());
     }
 
@@ -58,7 +58,7 @@ public class TestSetGame extends TestCase {
         cards.add(b);
         SetGame.Card c = game.new Card(1, 0, 1, 1);
         cards.add(c);
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(0, result.size());
     }
 
@@ -70,7 +70,7 @@ public class TestSetGame extends TestCase {
         cards.add(b);
         SetGame.Card c = game.new Card(1, 0, 2, 1);
         cards.add(c);
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(1, result.size());
         assertTrue(result.get(0).contains(a));
         assertTrue(result.get(0).contains(b));
@@ -87,7 +87,7 @@ public class TestSetGame extends TestCase {
         cards.add(c);
         SetGame.Card d = game.new Card(0, 0, 2, 2);
         cards.add(d);
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(1, result.size());
         assertFalse(result.get(0).contains(a));
         assertTrue(result.get(0).contains(b));
@@ -109,7 +109,7 @@ public class TestSetGame extends TestCase {
         cards.add(e);
 
         // Sets: a, b, c and a, d, e
-        ArrayList<ArrayList<SetGame.Card>> result = game.findAllSets(cards, false);
+        ArrayList<ArrayList<SetGame.Card>> result = game.getAllSets(cards, false);
         assertEquals(2, result.size());
         assertTrue(result.get(0).contains(a));
         assertTrue(result.get(0).contains(b));

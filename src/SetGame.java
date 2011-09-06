@@ -5,9 +5,11 @@ import java.util.Random;
 
 public class SetGame {
     private static Random random = new Random(); // needs to be initialized for the tests
-    private static int totalRounds = 0;
+    private static long totalRounds = 0;
+    private static int gamesWithOnly12Cards = 0;
     private static int[][] setCounter = new int[70][70]; // deck-size, table-size
     private static int[][] noSetCounter = new int[70][70]; // deck-size, table-size
+    private static int[][] availableSets = new int[70][70]; // deck-size, table-size
 
     class Card implements Comparable {
         private int number;
@@ -72,7 +74,7 @@ public class SetGame {
         return true;
     }
 
-   ArrayList<ArrayList<Card>> findAllSets(List<Card> cards, boolean findOnlyFirstSet) {
+   ArrayList<ArrayList<Card>> getAllSets(List<Card> cards, boolean findOnlyFirstSet) {
        ArrayList<ArrayList<Card>> result = new ArrayList<ArrayList<Card>>();
        if (cards == null) return result;
        int size = cards.size();
@@ -96,10 +98,9 @@ public class SetGame {
        return result;
    }
 
-    ArrayList<Card> getSet(ArrayList<Card> cards, int selectionMode) {
-        ArrayList<ArrayList<Card>> sets = findAllSets(cards, selectionMode == 2);
+    ArrayList<Card> getSet(ArrayList<ArrayList<Card>> sets, int selectionMode) {
         if (sets.size() == 0) return new ArrayList<Card>();
-        if (sets.size() == 1) return sets.get(0); // When only one found, or if selection mode is 2
+        if (sets.size() == 1 || selectionMode == 1) return sets.get(0); // When only one, or if selection mode is "First found"
         ArrayList<ArrayList<Card>> pickFromThese = sets;
         if (selectionMode == 3) {
             pickFromThese = getMostSameSets(sets);
@@ -141,7 +142,7 @@ public class SetGame {
     }
 
     boolean setExists(List<Card> cards) {
-        return findAllSets(cards, true).size() > 0;
+        return getAllSets(cards, true).size() > 0;
     }
 
     void moveCards(ArrayList<Card> from, ArrayList<Card> to, int numberOfCards) {
@@ -173,26 +174,32 @@ public class SetGame {
 
     private void play(ArrayList<Card> deck, int selectionMode, boolean debug) {
         int round = 0;
+        boolean noSetEncountered = false;
         ArrayList<Card> table = new ArrayList<Card>();
         moveCards(deck, table, 12);
         while (!deck.isEmpty() || setExists(table)) {
             round++;
             totalRounds++;
-            ArrayList<Card> set = getSet(table, selectionMode);
+            ArrayList<ArrayList<Card>> allSets = getAllSets(table, false);
+            availableSets[deck.size()][table.size()] += allSets.size();
+            ArrayList<Card> set = getSet(allSets, selectionMode);
             boolean setFound = set.size() > 0;
             if (debug) {
                 System.out.println("Round " + round + " deck size=" + deck.size() + " table size=" + table.size());
                 printCards("Table", table, 3);
-                if (setFound) {
-                    printCards("Set", set, 1);
-                } else {
-                    System.out.println("No set!!!!!!!!!\n");
+                System.out.println("Found " + allSets.size() + " Sets:");
+                int setCounter = 0;
+                for (ArrayList<Card> availableSet : allSets) {
+                    String chosen = availableSet.equals(set) ? " (chosen)" : "";
+                    printCards("Set " + ++setCounter + chosen, availableSet, 1);
                 }
+                if (allSets.size() == 0) System.out.println("No Sets found!!!\n");
             }
             if (setFound) {
                 setCounter[deck.size()][table.size()]++;
                 removeCards(set, table);
             } else {
+                noSetEncountered = true;
                 noSetCounter[deck.size()][table.size()]++;
             }
             if ((setFound && table.size() < 12) || (!setFound)) {
@@ -201,45 +208,60 @@ public class SetGame {
         }
         // The deck is now empty, and no more sets are on the table. Update appropriate counter for no set
         noSetCounter[deck.size()][table.size()]++;
+        if (!noSetEncountered) gamesWithOnly12Cards++;
     }
 
     private static void printResults(int tableSize) {
-        System.out.println("In deck |  Set  | NoSet | Set:NoSet for " + tableSize);
-        System.out.println("--------+-------+-------+-----------------");
+        System.out.println("In deck |  Set  | NoSet | Set:NoSet for " + tableSize + " | Avg # of Sets");
+        System.out.println("--------+-------+-------+------------------+-------------");
         for (int i = 69; i >= 0; i-= 3) {
             int set = setCounter[i][tableSize];
             int noSet = noSetCounter[i][tableSize];
-            String ratioString = "oo";
+            String ratioString = "        oo";
             if (noSet > 0) {
                 float ratio = (float)set / noSet;
-                ratioString = String.format("%.2f", ratio);
+                ratioString = String.format("%10.1f", ratio);
             }
-            System.out.printf("   %4d |%6d |%6d | %s:1\n", i, set, noSet, ratioString);
+            String avgNumSet = "  -";
+            int sum = set + noSet;
+            if (sum > 0) {
+                avgNumSet = String.format("%3.2f", (float)availableSets[i][tableSize] / (set + noSet));
+            }
+            System.out.printf("   %4d |%6d |%6d |%s:1      | %s\n", i, set, noSet, ratioString, avgNumSet);
         }
         System.out.println();
     }
 
     private static void printHelp() {
         String  helpText = "\nSetGame simulates playing the game SET, and prints statistics from the simulation.\n" +
-                "In particular it prints how many times no SET is present among the cards on the table.\n\n" +
+                "In particular it prints how many times no Set is present among the cards on the table.\n\n" +
                 "Possible parameters:\n" +
                 "-n x      x indicates the number of games to play (default is 10000)\n" +
-                "-sm x     selection mode when there is more than one possible SET to pick from the table (default is 1):\n" +
-                "          x=1 Pick randomly among the possible SETs\n" +
-                "          x=2 Pick the first found SET\n" +
-                "          x=3 Pick a SET where the most properties are the same\n" +
+                "-sm x     selection mode when there is more than one possible Set to pick from the table (default is 1):\n" +
+                "          x=1 Pick the first found Set\n" +
+                "          x=2 Pick randomly among the possible Sets\n" +
+                "          x=3 Pick a Set where the most properties are the same\n" +
                 "-seed x   x is the random number generator seed value. If none is given, a value is\n" +
                 "          chosen and printed in the results. That way, the exact same simulation can\n" +
                 "          be run again by giving the previous (printed) seed value as input argument\n" +
-                "-debug    for each round in the game, prints the cards on the table, and the SET found\n" +
+                "-debug    for each round in the game, prints the cards on the table, and the Set found\n" +
                 "-h        help, prints this message and then stops the execution\n";
         System.out.println(helpText);
+    }
+
+    private static String selectionModeName(int selectionMode) {
+        switch (selectionMode) {
+            case 1: return "First found Set";
+            case 2: return "Random among available Sets";
+            case 3: return "Random among 'most similar' Sets";
+            default: return "Invalid";
+        }
     }
 
     public static void main(String[] args) {
         int runs = 10000;
         int selectionMode = 1;
-        long seed = (System.currentTimeMillis() % 1000000);
+        long seed = (System.nanoTime() % 1000000000);
         boolean debug = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-n")) {
@@ -265,11 +287,15 @@ public class SetGame {
         }
         long duration = (System.currentTimeMillis() - startTime) / 1000;
         System.out.println("Total games played=" + runs +  ", total rounds=" + totalRounds + ", took " + duration + " seconds.");
-        System.out.println("Selection mode=" + selectionMode +", seed=" + seed + "\n");
+        float percent = ((float) gamesWithOnly12Cards / runs) * 100;
+        String percentString = String.format("%.1f", percent);
+        System.out.println("Games that never needed 15 cards on the table: " + gamesWithOnly12Cards + " (" + percentString + " percent of all games)");
+        System.out.println("Games where no cards remain on the table at the end: " + noSetCounter[0][0]);
+        System.out.println("Selection mode=\"" + selectionModeName(selectionMode) +"\" (" +
+                selectionMode + "), seed=" + seed + "\n");
         printResults(12);
         printResults(15);
         printResults(18);
+        printResults(21);
     }
 }
-
-// todo add average number of sets available, chanses of a whole game with no "no set", and chanses of cleaning table up at the end
