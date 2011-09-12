@@ -6,10 +6,10 @@ import java.util.Random;
 public class SetGame {
     private static Random random = new Random(); // needs to be initialized for the tests
     private static long totalRounds = 0;
-    private static int gamesWithOnly12Cards = 0;
-    private static int[][] setCounter = new int[70][70]; // deck-size, table-size
-    private static int[][] noSetCounter = new int[70][70]; // deck-size, table-size
-    private static int[][] availableSets = new int[70][70]; // deck-size, table-size
+    private static long gamesWithOnly12Cards = 0;
+    private static long[][] setCounter = new long[70][70]; // deck-size, table-size
+    private static long[][] noSetCounter = new long[70][70]; // deck-size, table-size
+    private static long[][] availableSets = new long[70][70]; // deck-size, table-size
 
     class Card implements Comparable {
         private int number;
@@ -215,15 +215,15 @@ public class SetGame {
         System.out.println("In deck |  Set  | NoSet | Set:NoSet for " + tableSize + " | Avg # of Sets");
         System.out.println("--------+-------+-------+------------------+-------------");
         for (int i = 69; i >= 0; i-= 3) {
-            int set = setCounter[i][tableSize];
-            int noSet = noSetCounter[i][tableSize];
+            long set = setCounter[i][tableSize];
+            long noSet = noSetCounter[i][tableSize];
             String ratioString = "        oo";
             if (noSet > 0) {
                 float ratio = (float)set / noSet;
                 ratioString = String.format("%10.1f", ratio);
             }
             String avgNumSet = "  -";
-            int sum = set + noSet;
+            long sum = set + noSet;
             if (sum > 0) {
                 avgNumSet = String.format("%3.2f", (float)availableSets[i][tableSize] / (set + noSet));
             }
@@ -258,14 +258,18 @@ public class SetGame {
         }
     }
 
+    public static String asPercent(float value) {
+        return String.format("%.1f", value * 100);
+    }
+
     public static void main(String[] args) {
-        int runs = 10000;
+        long runs = 10000;
         int selectionMode = 1;
         long seed = (System.nanoTime() % 1000000000);
         boolean debug = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-n")) {
-                runs = Integer.parseInt(args[++i]);
+                runs = Long.parseLong(args[++i]);
             } else if (args[i].equals("-sm")) {
                 selectionMode = Integer.parseInt(args[++i]);
             } else if (args[i].equals("-seed")) {
@@ -280,17 +284,17 @@ public class SetGame {
         System.out.println("");
         random  = new Random(seed);
         long startTime = System.currentTimeMillis();
-        for (int j = 0; j < runs; j++) {
+        for (long j = 0; j < runs; j++) {
             SetGame game = new SetGame();
             ArrayList<Card> deck = game.createShuffledDeck();
             game.play(deck, selectionMode, debug);
         }
         long duration = (System.currentTimeMillis() - startTime) / 1000;
         System.out.println("Total games played=" + runs +  ", total rounds=" + totalRounds + ", took " + duration + " seconds.");
-        float percent = ((float) gamesWithOnly12Cards / runs) * 100;
-        String percentString = String.format("%.1f", percent);
-        System.out.println("Games that never needed 15 cards on the table: " + gamesWithOnly12Cards + " (" + percentString + " percent of all games)");
-        System.out.println("Games where no cards remain on the table at the end: " + noSetCounter[0][0]);
+        System.out.println("Games that never needed 15 cards on the table: " + gamesWithOnly12Cards + " (" +
+                asPercent((float)gamesWithOnly12Cards / runs) + " percent of all games)");
+        System.out.println("Games where no cards remain on the table at the end: " + noSetCounter[0][0] + " ("  +
+                 asPercent((float)noSetCounter[0][0] / runs) + " percent of all games)");
         System.out.println("Selection mode=\"" + selectionModeName(selectionMode) +"\" (" +
                 selectionMode + "), seed=" + seed + "\n");
         printResults(12);
