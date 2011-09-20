@@ -212,8 +212,8 @@ public class SetGame {
     }
 
     private static void printResults(int tableSize) {
-        System.out.println("In deck |  Set  | NoSet | Set:NoSet for " + tableSize + " | Avg # of Sets");
-        System.out.println("--------+-------+-------+------------------+-------------");
+        System.out.println("In deck |   Set  | NoSet | Set:NoSet for " + tableSize + " | Avg # of Sets");
+        System.out.println("--------+--------+-------+------------------+-------------");
         for (int i = 69; i >= 0; i-= 3) {
             long set = setCounter[i][tableSize];
             long noSet = noSetCounter[i][tableSize];
@@ -227,7 +227,7 @@ public class SetGame {
             if (sum > 0) {
                 avgNumSet = String.format("%3.2f", (float)availableSets[i][tableSize] / (set + noSet));
             }
-            System.out.printf("   %4d |%6d |%6d |%s:1      | %s\n", i, set, noSet, ratioString, avgNumSet);
+            System.out.printf("   %4d |%7d |%6d |%s:1      | %s\n", i, set, noSet, ratioString, avgNumSet);
         }
         System.out.println();
     }
