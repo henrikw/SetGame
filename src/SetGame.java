@@ -1,3 +1,5 @@
+// SET is a registered trademark of Cannei, LLC. Used with permission from Set Enterprises, Inc.
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
