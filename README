@@ -1,4 +1,4 @@
-SetGame simulates playing the game of Set. It is inspired by Peter Norvig's blogpost 
+SetGameSimulator simulates playing the game of Set. It is inspired by Peter Norvig's blogpost 
 entitled "The Odds of Finding a Set in The Card Game SET". However, it extends that 
 simulation in several ways: the odds are tabulated per round played (not just the 
 aggregated result), it lets you pick a selection mode (as opposed to picking the 
@@ -191,3 +191,4 @@ Set 1 (chosen)
 0:0:2:0 
 1:1:0:1 
 
+SET is a registered trademark of Cannei, LLC. Used with permission from Set Enterprises, Inc.
