@@ -1,4 +1,4 @@
-SetGameSimulator simulates playing the game of Set. It is inspired by Peter Norvig's blogpost 
+SetGameSimulator simulates playing the game of SET®. It is inspired by Peter Norvig's blogpost 
 entitled "The Odds of Finding a Set in The Card Game SET". However, it extends that 
 simulation in several ways: the odds are tabulated per round played (not just the 
 aggregated result), it lets you pick a selection mode (as opposed to picking the 
@@ -10,7 +10,7 @@ Output from help:
 
 java SetGame -h
 
-SetGame simulates playing the game SET, and prints statistics from the simulation.
+SetGameSimulator simulates playing the game SET, and prints statistics from the simulation.
 In particular it prints how many times no Set is present among the cards on the table.
 
 Possible parameters:
