@@ -235,7 +235,7 @@ public class SetGame {
     }
 
     private static void printHelp() {
-        String  helpText = "\nSetGame simulates playing the game SET, and prints statistics from the simulation.\n" +
+        String  helpText = "\nSetGameSimulator simulates playing the game SET, and prints statistics from the simulation.\n" +
                 "In particular it prints how many times no Set is present among the cards on the table.\n\n" +
                 "Possible parameters:\n" +
                 "-n x      x indicates the number of games to play (default is 10000)\n" +
